@@ -2,6 +2,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import os
+import seaborn as sns
 from sklearn.linear_model import LinearRegression
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.model_selection import  train_test_split
@@ -25,3 +26,12 @@ for c in dfcols:
 
 # Convert data type from object to category
 df[df.select_dtypes(['object']).columns] = df.select_dtypes(['object']).apply(lambda x: x.astype('category'))
+df['year'] = df['year'].astype('category')
+
+# Should we impute missing values?
+sns.set_theme(style="whitegrid")
+sns.boxplot(x=df['budget'])
+sns.displot(df, x="budget")
+# sns.displot(df, x="budget",binwidth=50, hue="company")
+
+
