@@ -1,6 +1,7 @@
 # Libraries used
 import pandas as pd
 import matplotlib.pyplot as plt
+import numpy as np
 import os
 import seaborn as sns
 from sklearn.linear_model import LinearRegression
@@ -43,3 +44,13 @@ df.select_dtypes(['category'])
 # decide whether shoud we delete budget columns or not
 # check outlier of numerical values
 # impute rating colums (maybe based on mode)
+
+
+
+
+
+# Fit regression model
+# x.shape = (row, col) and y = (row,): both are array
+# dt = DecisionTreeRegressor(max_depth=2)
+# dt.fit(train_x, train_y)
+# yhat = dt.predict(test_x)
