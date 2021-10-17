@@ -8,7 +8,7 @@ from sklearn.tree import DecisionTreeRegressor
 from sklearn.model_selection import  train_test_split
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 
-os.chdir('M:/project/git-repo/imdb-rating/')
+# os.chdir('M:/project/git-repo/imdb-rating/')
 df = pd.read_csv('./movies.csv')
 
 # ==========================================
