@@ -43,3 +43,5 @@ df.select_dtypes(['category'])
 # decide whether shoud we delete budget columns or not
 # check outlier of numerical values
 # impute rating colums (maybe based on mode)
+
+#linear
