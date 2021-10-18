@@ -8,6 +8,7 @@ import seaborn as sns
 from statistics import mean
 from sklearn.linear_model import LinearRegression
 from sklearn.tree import DecisionTreeRegressor
+from sklearn import tree
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 from sklearn.model_selection import  train_test_split, cross_val_score, GridSearchCV
 from sklearn.metrics import mean_squared_error as mse, mean_absolute_error as mae, r2_score as r2
@@ -47,11 +48,6 @@ df[['score','rating']].groupby('rating').describe()
 # ==========================================
 #            Data Preparation
 # ==========================================
-# To do
-# drop NA of released, socre, vote, writer, star, country, company, runtime
-# decide whether shoud we delete budget columns or not
-# check outlier of numerical values
-# impute rating colums (maybe based on mode)
 df_clean = df.drop(['budget'], axis=1)
 print(f"This data has {len(df_clean)} rows, and {len(df_clean.columns)} colums as following:\n{df_clean.columns.values}")
 print(f"Remain: {len(df_clean.columns)} columns")
@@ -77,8 +73,6 @@ print(f"Remain: {len(df_clean)} rows")
 df_clean.columns
 df_clean.drop(['name','released','writer','star','director'], axis=1, inplace=True)
 
-
-
 # Manipulate missing values
 df_clean['gross'].describe()
 df_clean['gross'].fillna(value=df_clean['gross'].median(), inplace=True)
@@ -86,7 +80,6 @@ df_clean.dropna(subset=['rating'], inplace=True)
 df_clean.reset_index(drop=True, inplace=True)
 print(f"Remain: {len(df_clean)} rows from {len(df)} rows")
 
-# Cannot put string type into model, try factorization or encoding before modeling
 # Factorized categoorical features
 df_clean.select_dtypes('category').columns
 cate_col = ['rating' ,'genre', 'year', 'country', 'company']
@@ -100,19 +93,11 @@ df_clean.reset_index(drop=True, inplace=True)
 
 # Normalization : min-max scaling, z-score scaling
 # * Normalization doesn't help improve the model
-df_clean.select_dtypes('float').columns
-# num_col = ['votes', 'gross', 'runtime']
-
-# Min-max scaling
-# scaler = MinMaxScaler()
+# num_col = ['score', 'votes', 'gross', 'runtime']
+# scaler = MinMaxScaler() # Min-max scaling
+# scaler = StandardScaler() # Z-score scaling
 # df_clean[num_col] = scaler.fit_transform(df_clean[num_col])
 # del num_col
-
-# z-score scaling
-# scaler = StandardScaler()
-# df_clean[num_col] = scaler.fit_transform(df_clean[num_col])
-# del num_col
-
 
 # Train/test split
 X = df_clean.drop(['score'], axis=1)
@@ -143,3 +128,6 @@ grid_model = GridSearchCV(model,
 grid_model.fit(trainX, trainY)
 print(f"\nGridSearchCV, best max_depth = {list(grid_model.best_params_.values())[0]}, 10-fold CV MSE = {-grid_model.best_score_:.4f}")
 print(f"max_depth = {list(grid_model.best_params_.values())[0]}, MSE = {mse(testY, grid_model.predict(testX)):.4f}")
+predicted = grid_model.predict(testX)
+
+   
