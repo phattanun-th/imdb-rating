@@ -9,7 +9,9 @@ from statistics import mean
 from sklearn.linear_model import LinearRegression
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.model_selection import  train_test_split, cross_val_score
-from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+from sklearn.metrics import mean_squared_error as mse, mean_absolute_error as mae, r2_score as r2
+
+
 
 os.chdir('M:/project/git-repo/imdb-rating/')
 df = pd.read_csv('./movies.csv')
@@ -84,6 +86,17 @@ df_clean.reset_index(drop=True, inplace=True)
 print(f"Remain: {len(df_clean)} rows from {len(df)} rows")
 
 # Cannot put string type into model, try factorization or encoding before modeling
+# Factorized categoorical features
+df_clean.select_dtypes('category').columns
+cate_col = ['rating' ,'genre', 'year', 'country', 'company']
+for col in cate_col:
+    factor = df_clean[col].factorize()
+    df_clean[col] = factor[0]
+    df_clean[col] = df_clean[col].astype('category') 
+    del factor
+del cate_col
+df_clean.reset_index(drop=True, inplace=True)
+
 # Train/test split
 X = df_clean.drop(['score'], axis=1)
 Y = df_clean['score']
@@ -100,5 +113,11 @@ trainX, testX, trainY, testY = train_test_split(X, Y, test_size=0.7, random_stat
 # dt = DecisionTreeRegressor(max_depth=2)
 # dt.fit(train_x, train_y)
 # yhat = dt.predict(test_x)
-regressor = DecisionTreeRegressor(random_state=0)
-regressor.fit(trainX, trainY)
+mse_list = []
+# vary maxdepth from 1 to 20
+for ndepth in range(1,21):
+    model = DecisionTreeRegressor(random_state=1, max_depth=ndepth)
+    model.fit(trainX, trainY)
+    mse_list.append(mse(testY, model.predict(testX)))
+mse_list = np.array(mse_list)
+print(f"max_depth = {np.argsort(mse_list)[0]+1}, MSE = {mse_list[np.argsort(mse_list)[0]]:.4f}")
