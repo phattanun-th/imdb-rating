@@ -110,7 +110,6 @@ X = df_clean.drop(['score'], axis=1)
 Y = df_clean['score']
 trainX, testX, trainY, testY = train_test_split(X, Y, test_size=0.7, random_state=123)
 
-
 # ==========================================
 #                 Modeling
 # ==========================================
