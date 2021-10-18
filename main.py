@@ -8,7 +8,8 @@ import seaborn as sns
 from statistics import mean
 from sklearn.linear_model import LinearRegression
 from sklearn.tree import DecisionTreeRegressor
-from sklearn.model_selection import  train_test_split, cross_val_score
+from sklearn.preprocessing import MinMaxScaler, StandardScaler
+from sklearn.model_selection import  train_test_split, cross_val_score, GridSearchCV
 from sklearn.metrics import mean_squared_error as mse, mean_absolute_error as mae, r2_score as r2
 
 
@@ -97,22 +98,32 @@ for col in cate_col:
 del cate_col
 df_clean.reset_index(drop=True, inplace=True)
 
+# Normalization : min-max scaling, z-score scaling
+# * Normalization doesn't help improve the model
+df_clean.select_dtypes('float').columns
+# num_col = ['votes', 'gross', 'runtime']
+
+# Min-max scaling
+# scaler = MinMaxScaler()
+# df_clean[num_col] = scaler.fit_transform(df_clean[num_col])
+# del num_col
+
+# z-score scaling
+# scaler = StandardScaler()
+# df_clean[num_col] = scaler.fit_transform(df_clean[num_col])
+# del num_col
+
+
 # Train/test split
 X = df_clean.drop(['score'], axis=1)
 Y = df_clean['score']
 trainX, testX, trainY, testY = train_test_split(X, Y, test_size=0.7, random_state=123)
-
 
 # ==========================================
 #                 Modeling
 # ==========================================
 # Fit regression model
 # Decision Tree
-# https://scikit-learn.org/stable/auto_examples/tree/plot_tree_regression.html
-# x.shape = (row, col) and y = (row,): both are array
-# dt = DecisionTreeRegressor(max_depth=2)
-# dt.fit(train_x, train_y)
-# yhat = dt.predict(test_x)
 mse_list = []
 # vary maxdepth from 1 to 20
 for ndepth in range(1,21):
@@ -121,3 +132,14 @@ for ndepth in range(1,21):
     mse_list.append(mse(testY, model.predict(testX)))
 mse_list = np.array(mse_list)
 print(f"max_depth = {np.argsort(mse_list)[0]+1}, MSE = {mse_list[np.argsort(mse_list)[0]]:.4f}")
+
+# Use GridSearchCV
+model = DecisionTreeRegressor(random_state=1)
+grid_model = GridSearchCV(model,
+                  param_grid = {'max_depth': range(1, 21)},
+                  cv=10,
+                  n_jobs=1,
+                  scoring='neg_mean_squared_error')
+grid_model.fit(trainX, trainY)
+print(f"\nGridSearchCV, best max_depth = {list(grid_model.best_params_.values())[0]}, 10-fold CV MSE = {-grid_model.best_score_:.4f}")
+print(f"max_depth = {list(grid_model.best_params_.values())[0]}, MSE = {mse(testY, grid_model.predict(testX)):.4f}")
