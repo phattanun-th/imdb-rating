@@ -12,7 +12,6 @@ from sklearn.model_selection import  train_test_split, cross_val_score
 from sklearn.metrics import mean_squared_error as mse, mean_absolute_error as mae, r2_score as r2
 
 
-
 # os.chdir('M:/project/git-repo/imdb-rating/')
 df = pd.read_csv('./movies.csv')
 
