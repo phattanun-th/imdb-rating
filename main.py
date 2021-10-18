@@ -10,6 +10,8 @@ from sklearn.linear_model import LinearRegression
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.model_selection import  train_test_split, cross_val_score
 from sklearn.metrics import mean_squared_error as mse, mean_absolute_error as mae, r2_score as r2
+from sklearn.linear_model import LinearRegression
+from yellowbrick.regressor import PredictionError
 
 
 # os.chdir('M:/project/git-repo/imdb-rating/')
@@ -127,3 +129,29 @@ for ndepth in range(1,21):
     mse_list.append(mse(testY, model.predict(testX)))
 mse_list = np.array(mse_list)
 print(f"max_depth = {np.argsort(mse_list)[0]+1}, MSE = {mse_list[np.argsort(mse_list)[0]]:.4f}")
+
+
+# Use GridSearchCV
+model = DecisionTreeRegressor(random_state=1)
+grid_model = GridSearchCV(model,
+                  param_grid = {'max_depth': range(1, 21)},
+                  cv=10,
+                  n_jobs=1,
+                  scoring='neg_mean_squared_error')
+grid_model.fit(trainX, trainY)
+print(f"\nGridSearchCV, best max_depth = {list(grid_model.best_params_.values())[0]}, 10-fold CV MSE = {-grid_model.best_score_:.4f}")
+print(f"max_depth = {list(grid_model.best_params_.values())[0]}, MSE = {mse(testY, grid_model.predict(testX)):.4f}")
+predicted = grid_model.predict(testX)
+
+# Linear Reegression
+linear_model = LinearRegression()
+linear_model.fit(trainX, trainY)
+predicted = linear_model.predict(testX)
+mse(testY, predicted)
+r2(testY, predicted)
+# Visualization
+# Instantiate the linear model and visualizer
+visualizer = PredictionError(linear_model)
+visualizer.fit(trainX, trainY)  # Fit the training data to the visualizer
+visualizer.score(testX, testY)  # Evaluate the model on the test data
+visualizer.show()                 # Finalize and render the figure
