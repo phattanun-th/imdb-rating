@@ -8,7 +8,7 @@ import seaborn as sns
 from statistics import mean
 from sklearn.linear_model import LinearRegression
 from sklearn.tree import DecisionTreeRegressor
-from sklearn.model_selection import  train_test_split
+from sklearn.model_selection import  train_test_split, cross_val_score
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 
 os.chdir('M:/project/git-repo/imdb-rating/')
@@ -36,9 +36,6 @@ sns.boxplot(x=df_clean['gross'])
 sns.displot(df_clean, x="gross")
 # sns.displot(df, x="budget",binwidth=50, hue="company")
 
-# Data transformation
-df['rating'].value_counts() 
-# df['company'].value_counts() # 2385 companies
 df.select_dtypes(['float64']) # select specific types
 df.select_dtypes(['category'])
 df[['score','rating']].groupby('rating').describe()
@@ -55,6 +52,7 @@ df[['score','rating']].groupby('rating').describe()
 df_clean = df.drop(['budget'], axis=1)
 print(f"This data has {len(df_clean)} rows, and {len(df_clean.columns)} colums as following:\n{df_clean.columns.values}")
 print(f"Remain: {len(df_clean.columns)} columns")
+
 # Explore missing values
 dfcols = list(df_clean.columns.values)
 print(" Missing Values ".center(30,'='))
@@ -72,17 +70,24 @@ for val in rmvalue:
     df_clean.drop(df_clean[df_clean.rating == val].index, axis=0, inplace=True)
     df_clean.reset_index(drop=True, inplace=True)
 print(f"Remain: {len(df_clean)} rows")
+# Remove unimportant features
+df_clean.columns
+df_clean.drop(['name','released','writer','star','director'], axis=1, inplace=True)
+
+
 
 # Manipulate missing values
 df_clean['gross'].describe()
 df_clean['gross'].fillna(value=df_clean['gross'].median(), inplace=True)
 df_clean.dropna(subset=['rating'], inplace=True)
+df_clean.reset_index(drop=True, inplace=True)
 print(f"Remain: {len(df_clean)} rows from {len(df)} rows")
 
-# df_clean.select_dtypes(['float64']) # select specific types
-# df_clean.select_dtypes(['category'])
-
+# Cannot put string type into model, try factorization or encoding before modeling
 # Train/test split
+X = df_clean.drop(['score'], axis=1)
+Y = df_clean['score']
+trainX, testX, trainY, testY = train_test_split(X, Y, test_size=0.7, random_state=123)
 
 
 # ==========================================
@@ -95,3 +100,5 @@ print(f"Remain: {len(df_clean)} rows from {len(df)} rows")
 # dt = DecisionTreeRegressor(max_depth=2)
 # dt.fit(train_x, train_y)
 # yhat = dt.predict(test_x)
+regressor = DecisionTreeRegressor(random_state=0)
+regressor.fit(trainX, trainY)
