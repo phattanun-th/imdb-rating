@@ -32,10 +32,10 @@ for c in dfcols:
 df[df.select_dtypes(['object']).columns] = df.select_dtypes(['object']).apply(lambda x: x.astype('category'))
 df['year'] = df['year'].astype('category')
 
-# Should we impute missing values?
-sns.set_theme(style="whitegrid")
-sns.boxplot(x=df_clean['gross'])
-sns.displot(df_clean, x="gross")
+# Plot
+# sns.set_theme(style="whitegrid")
+# sns.boxplot(x=df['gross'])
+# sns.displot(df, x="gross")
 # sns.displot(df, x="budget",binwidth=50, hue="company")
 
 df.select_dtypes(['float64']) # select specific types
