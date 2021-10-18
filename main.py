@@ -51,10 +51,8 @@ df[['score','rating']].groupby('rating').describe()
 # decide whether shoud we delete budget columns or not
 # check outlier of numerical values
 # impute rating colums (maybe based on mode)
-<<<<<<< HEAD
 
 #linear
-=======
 df_clean = df.drop(['budget'], axis=1)
 print(f"This data has {len(df_clean)} rows, and {len(df_clean.columns)} colums as following:\n{df_clean.columns.values}")
 print(f"Remain: {len(df_clean.columns)} columns")
@@ -125,4 +123,3 @@ for ndepth in range(1,21):
     mse_list.append(mse(testY, model.predict(testX)))
 mse_list = np.array(mse_list)
 print(f"max_depth = {np.argsort(mse_list)[0]+1}, MSE = {mse_list[np.argsort(mse_list)[0]]:.4f}")
->>>>>>> 3e688c863995f4319358bf41fe34f60592f4ece9
