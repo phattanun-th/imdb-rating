@@ -12,8 +12,8 @@ from sklearn import tree
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 from sklearn.model_selection import  train_test_split, cross_val_score, GridSearchCV
 from sklearn.metrics import mean_squared_error as mse, mean_absolute_error as mae, r2_score as r2
-
-
+from sklearn.linear_model import LinearRegression
+from yellowbrick.regressor import PredictionError
 
 os.chdir('M:/project/git-repo/imdb-rating/')
 df = pd.read_csv('./movies.csv')
@@ -130,4 +130,15 @@ print(f"\nGridSearchCV, best max_depth = {list(grid_model.best_params_.values())
 print(f"max_depth = {list(grid_model.best_params_.values())[0]}, MSE = {mse(testY, grid_model.predict(testX)):.4f}")
 predicted = grid_model.predict(testX)
 
-   
+# Linear Reegression
+linear_model = LinearRegression()
+linear_model.fit(trainX, trainY)
+predicted = linear_model.predict(testX)
+mse(testY, predicted)
+r2(testY, predicted)
+# Visualization
+# Instantiate the linear model and visualizer
+visualizer = PredictionError(linear_model)
+visualizer.fit(trainX, trainY)  # Fit the training data to the visualizer
+visualizer.score(testX, testY)  # Evaluate the model on the test data
+visualizer.show()                 # Finalize and render the figure
