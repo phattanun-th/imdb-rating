@@ -1,4 +1,5 @@
 # Libraries used
+
 from itertools import groupby
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -8,10 +9,11 @@ import seaborn as sns
 from statistics import mean
 from sklearn.linear_model import LinearRegression
 from sklearn.tree import DecisionTreeRegressor
-from sklearn.model_selection import  train_test_split, cross_val_score
+from sklearn.model_selection import  train_test_split, cross_val_score, GridSearchCV
 from sklearn.metrics import mean_squared_error as mse, mean_absolute_error as mae, r2_score as r2
 from sklearn.linear_model import LinearRegression
 from yellowbrick.regressor import PredictionError
+from collections import Counter
 
 
 # os.chdir('M:/project/git-repo/imdb-rating/')
@@ -86,7 +88,6 @@ df_clean.columns
 df_clean.drop(['name','released','writer','star','director'], axis=1, inplace=True)
 print(f"Remain: {len(df_clean)} rows\n")
 
-
 # Manipulate missing values
 df_clean['gross'].describe()
 df_clean['gross'].fillna(value=df_clean['gross'].median(), inplace=True)
@@ -96,7 +97,7 @@ print(f"Remain: {len(df_clean)} rows from {len(df)} rows")
 
 # Cannot put string type into model, try factorization or encoding before modeling
 # Factorized categoorical features
-df_clean.select_dtypes('category').columns
+"""df_clean.select_dtypes('category').columns
 cate_col = ['rating' ,'genre', 'year', 'country', 'company']
 for col in cate_col:
     factor = df_clean[col].factorize()
@@ -104,7 +105,23 @@ for col in cate_col:
     df_clean[col] = df_clean[col].astype('category') 
     del factor
 del cate_col
+df_clean.reset_index(drop=True, inplace=True)"""
+df_clean.company.value_counts()
+
+# companies that have movies more than 10
+big_companies = df_clean.company.value_counts()
+big_companies = big_companies[big_companies >= 10]
+# df_clean = df_clean[df_clean.groupby('company')['company'].transform('count').ge(10)]
+df_clean.drop(df_clean[-df_clean['company'].isin(big_companies.index)].index, inplace=True)
 df_clean.reset_index(drop=True, inplace=True)
+df_clean['company'] = df_clean['company'].cat.remove_unused_categories()
+
+
+print("Final Missing Values ".center(30,'='))
+for c in df_clean.columns:
+    print(f"{c.ljust(15)} {df_clean[c].isna().sum()}")
+
+df_clean = pd.get_dummies(df_clean)
 
 # Train/test split
 X = df_clean.drop(['score'], axis=1)
@@ -121,6 +138,12 @@ trainX, testX, trainY, testY = train_test_split(X, Y, test_size=0.7, random_stat
 # dt = DecisionTreeRegressor(max_depth=2)
 # dt.fit(train_x, train_y)
 # yhat = dt.predict(test_x)
+
+
+print('\nmodeling phrase\n')
+
+print('DecisionTree\n')
+
 mse_list = []
 # vary maxdepth from 1 to 20
 for ndepth in range(1,21):
@@ -130,7 +153,7 @@ for ndepth in range(1,21):
 mse_list = np.array(mse_list)
 print(f"max_depth = {np.argsort(mse_list)[0]+1}, MSE = {mse_list[np.argsort(mse_list)[0]]:.4f}")
 
-
+print('DecisionTree with GridSearchCV\n')
 # Use GridSearchCV
 model = DecisionTreeRegressor(random_state=1)
 grid_model = GridSearchCV(model,
@@ -143,6 +166,7 @@ print(f"\nGridSearchCV, best max_depth = {list(grid_model.best_params_.values())
 print(f"max_depth = {list(grid_model.best_params_.values())[0]}, MSE = {mse(testY, grid_model.predict(testX)):.4f}")
 predicted = grid_model.predict(testX)
 
+print('Linear Regression\n')
 # Linear Reegression
 linear_model = LinearRegression()
 linear_model.fit(trainX, trainY)
