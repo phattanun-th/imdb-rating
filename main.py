@@ -170,6 +170,7 @@ for ndepth in range(1,21):
 mse_list = np.array(mse_list)
 predicted_DT = model.predict(testX)
 print(f"max_depth = {np.argsort(mse_list)[0]+1}, MSE = {mse_list[np.argsort(mse_list)[0]]:.4f}")
+print('RMSE =', mse(testY, predicted_DT, squared=False))
 print("R2 =", r2(testY,predicted_DT), "\n")
 
 # Use GridSearchCV
@@ -184,6 +185,7 @@ grid_model.fit(trainX, trainY)
 print(f"GridSearchCV, best max_depth = {list(grid_model.best_params_.values())[0]}, 10-fold CV MSE = {-grid_model.best_score_:.4f}")
 print(f"max_depth = {list(grid_model.best_params_.values())[0]}, MSE = {mse(testY, grid_model.predict(testX)):.4f}")
 predicted_DTwGSCV = grid_model.predict(testX)
+print('RMSE =', mse(testY, predicted_DTwGSCV, squared=False))
 print("R2 =", r2(testY,predicted_DTwGSCV), "\n")
 
 print('Linear Regression\n')
@@ -191,6 +193,7 @@ print('Linear Regression\n')
 linear_model = LinearRegression()
 linear_model.fit(trainX, trainY)
 predicted = linear_model.predict(testX)
+print('RMSE =', mse(testY, predicted, squared=False))
 print('MSE =', mse(testY, predicted))
 print('R2 =', r2(testY, predicted))
 # Visualization
