@@ -83,6 +83,7 @@ rmvalue = ['Approved','TV-14','X','TV-PG','TV-MA']
 for val in rmvalue:
     df_clean.drop(df_clean[df_clean.rating == val].index, axis=0, inplace=True)
     df_clean.reset_index(drop=True, inplace=True)
+df_clean['rating'] = df_clean['rating'].cat.remove_unused_categories()
 print(f"Remain: {len(df_clean)} rows\n")
 
 # Remove unimportant features
@@ -127,10 +128,7 @@ for c in df_clean.columns:
 
 df_clean = pd.get_dummies(df_clean)
 
-# Train/test split
-X = df_clean.drop(['score'], axis=1)
-Y = df_clean['score']
-trainX, testX, trainY, testY = train_test_split(X, Y, test_size=0.7, random_state=123)
+df_clean['score'] = np.exp(df_clean['score'])
 
 # ==========================================
 #                 Modeling
@@ -143,11 +141,16 @@ trainX, testX, trainY, testY = train_test_split(X, Y, test_size=0.7, random_stat
 # dt.fit(train_x, train_y)
 # yhat = dt.predict(test_x)
 
+# Train/test split
+X = df_clean.drop(['score'], axis=1)
+Y = df_clean['score']
+trainX, testX, trainY, testY = train_test_split(X, Y, test_size=0.7, random_state=123)
+#trainX, testX, trainY, testY = train_test_split(X, Y, train_size=0.7, random_state=123)
 
 print('\nmodeling phrase\n')
 
-print('DecisionTree\n')
-
+# Use DecisionTree
+print('DecisionTree')
 mse_list = []
 # vary maxdepth from 1 to 20
 for ndepth in range(1,21):
@@ -155,10 +158,12 @@ for ndepth in range(1,21):
     model.fit(trainX, trainY)
     mse_list.append(mse(testY, model.predict(testX)))
 mse_list = np.array(mse_list)
+predicted_DT = model.predict(testX)
 print(f"max_depth = {np.argsort(mse_list)[0]+1}, MSE = {mse_list[np.argsort(mse_list)[0]]:.4f}")
+print("R2 = ", r2(testY,predicted_DT), "\n")
 
-print('DecisionTree with GridSearchCV\n')
 # Use GridSearchCV
+print('DecisionTree with GridSearchCV')
 model = DecisionTreeRegressor(random_state=1)
 grid_model = GridSearchCV(model,
                   param_grid = {'max_depth': range(1, 21)},
@@ -166,17 +171,18 @@ grid_model = GridSearchCV(model,
                   n_jobs=1,
                   scoring='neg_mean_squared_error')
 grid_model.fit(trainX, trainY)
-print(f"\nGridSearchCV, best max_depth = {list(grid_model.best_params_.values())[0]}, 10-fold CV MSE = {-grid_model.best_score_:.4f}")
+print(f"GridSearchCV, best max_depth = {list(grid_model.best_params_.values())[0]}, 10-fold CV MSE = {-grid_model.best_score_:.4f}")
 print(f"max_depth = {list(grid_model.best_params_.values())[0]}, MSE = {mse(testY, grid_model.predict(testX)):.4f}")
-predicted = grid_model.predict(testX)
+predicted_DTwGSCV = grid_model.predict(testX)
+print("R2 = ", r2(testY,predicted_DTwGSCV), "\n")
 
 print('Linear Regression\n')
 # Linear Reegression
 linear_model = LinearRegression()
 linear_model.fit(trainX, trainY)
 predicted = linear_model.predict(testX)
-mse(testY, predicted)
-r2(testY, predicted)
+print('MSE = ', mse(testY, predicted))
+print('R2 = ', r2(testY, predicted))
 # Visualization
 # Instantiate the linear model and visualizer
 visualizer = PredictionError(linear_model)
