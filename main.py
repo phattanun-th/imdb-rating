@@ -60,6 +60,11 @@ print('\ndrop budget')
 print(f"This data has {len(df_clean)} rows, and {len(df_clean.columns)} colums as following:\n{df_clean.columns.values}")
 print(f"Remain: {len(df_clean.columns)} columns\n")
 
+# merge years into 5 years per group
+print("group years in 5 years per group\n")
+fiveyearly = ["{0} - {1}".format(i, i+4) for i in range(1980, 2025, 5)]
+df_clean['year'] = pd.cut(df_clean['year'], range(1980, 2026,5), right=False, labels = fiveyearly)
+
 # Explore missing values
 dfcols = list(df_clean.columns.values)
 print(" Missing Values ".center(30,'='))
@@ -160,7 +165,7 @@ for ndepth in range(1,21):
 mse_list = np.array(mse_list)
 predicted_DT = model.predict(testX)
 print(f"max_depth = {np.argsort(mse_list)[0]+1}, MSE = {mse_list[np.argsort(mse_list)[0]]:.4f}")
-print("R2 = ", r2(testY,predicted_DT), "\n")
+print("R2 =", r2(testY,predicted_DT), "\n")
 
 # Use GridSearchCV
 print('DecisionTree with GridSearchCV')
@@ -174,15 +179,15 @@ grid_model.fit(trainX, trainY)
 print(f"GridSearchCV, best max_depth = {list(grid_model.best_params_.values())[0]}, 10-fold CV MSE = {-grid_model.best_score_:.4f}")
 print(f"max_depth = {list(grid_model.best_params_.values())[0]}, MSE = {mse(testY, grid_model.predict(testX)):.4f}")
 predicted_DTwGSCV = grid_model.predict(testX)
-print("R2 = ", r2(testY,predicted_DTwGSCV), "\n")
+print("R2 =", r2(testY,predicted_DTwGSCV), "\n")
 
 print('Linear Regression\n')
 # Linear Reegression
 linear_model = LinearRegression()
 linear_model.fit(trainX, trainY)
 predicted = linear_model.predict(testX)
-print('MSE = ', mse(testY, predicted))
-print('R2 = ', r2(testY, predicted))
+print('MSE =', mse(testY, predicted))
+print('R2 =', r2(testY, predicted))
 # Visualization
 # Instantiate the linear model and visualizer
 visualizer = PredictionError(linear_model)
