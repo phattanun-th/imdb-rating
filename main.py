@@ -91,6 +91,9 @@ for val in rmvalue:
 df_clean['rating'] = df_clean['rating'].cat.remove_unused_categories()
 print(f"Remain: {len(df_clean)} rows\n")
 
+# merge Unrated and Not Rated
+df_clean['rating'] = df_clean['rating'].replace({'Not Rated':'Unrated'})
+
 # Remove unimportant features
 print('drop unimportant features (name, released, writer, star, director)')
 df_clean.columns
