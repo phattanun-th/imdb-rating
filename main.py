@@ -92,6 +92,7 @@ df_clean['rating'] = df_clean['rating'].cat.remove_unused_categories()
 print(f"Remain: {len(df_clean)} rows\n")
 
 # merge Unrated and Not Rated
+print('merge Unrated and Not Rated\n')
 df_clean['rating'] = df_clean['rating'].replace({'Not Rated':'Unrated'})
 
 # Remove unimportant features
@@ -101,6 +102,7 @@ df_clean.drop(['name','released','writer','star','director'], axis=1, inplace=Tr
 print(f"Remain: {len(df_clean)} rows\n")
 
 # Manipulate missing values
+print('Manipulate missing values')
 df_clean['gross'].describe()
 df_clean['gross'].fillna(value=df_clean['gross'].median(), inplace=True)
 df_clean.dropna(subset=['rating'], inplace=True)
