@@ -22,15 +22,14 @@ df = pd.read_csv('./movies.csv')
 # ==========================================
 #                   EDA
 # ==========================================
-print(f"This data has {len(df)} rows, and {len(df.columns)} colums as following:\n{df.columns.values}")
-print(" Data types ".center(30,'='),"\n", df.dtypes)
+print(f"This data has {len(df)} rows, and {len(df.columns)} colums as following:\n{df.columns.values}\n")
+print(" Data types ".center(30,'='),"\n", df.dtypes, "\n")
 
 # Explore missing values
 dfcols = list(df.columns.values)
 print(" Missing Values ".center(30,'='))
 for c in dfcols:
     print(f"{c.ljust(15)} {df[c].isna().sum()}")
-
 # Convert data type from object to category
 df[df.select_dtypes(['object']).columns] = df.select_dtypes(['object']).apply(lambda x: x.astype('category'))
 df['year'] = df['year'].astype('category')
@@ -57,7 +56,7 @@ df[['score','rating']].groupby('rating').describe()
 
 #linear
 df_clean = df.drop(['budget'], axis=1)
-print('drop budget')
+print('\ndrop budget')
 print(f"This data has {len(df_clean)} rows, and {len(df_clean.columns)} colums as following:\n{df_clean.columns.values}")
 print(f"Remain: {len(df_clean.columns)} columns\n")
 
@@ -66,22 +65,26 @@ dfcols = list(df_clean.columns.values)
 print(" Missing Values ".center(30,'='))
 for c in dfcols:
     print(f"{c.ljust(15)} {df_clean[c].isna().sum()}")
+
 # Remove rows having more than 1 missing value (about 29 rows)
-print('drop rows that have more than 1 missing value')
+print('\ndrop rows that have more than 1 missing value')
 df_clean.dropna(thresh=13, inplace=True)
 print(f"Remain: {len(df_clean)} rows\n")
+
 # Remove a few remaining missing value  (about 13 rows)
-df_clean.dropna(subset=['runtime','writer','company'], inplace=True)
-# Remove some levels of rating colums
 print('drop rows that have missing runtime, writer, or company')
+df_clean.dropna(subset=['runtime','writer','company'], inplace=True)
 print(f"Remain: {len(df_clean)} rows\n")
+
+# Remove some levels of rating columns
+print('drop rows that are TV Programs')
 df_clean['rating'].value_counts()
 rmvalue = ['Approved','TV-14','X','TV-PG','TV-MA']
 for val in rmvalue:
     df_clean.drop(df_clean[df_clean.rating == val].index, axis=0, inplace=True)
     df_clean.reset_index(drop=True, inplace=True)
-print('drop TV programs')
 print(f"Remain: {len(df_clean)} rows\n")
+
 # Remove unimportant features
 print('drop unimportant features (name, released, writer, star, director)')
 df_clean.columns
@@ -93,7 +96,7 @@ df_clean['gross'].describe()
 df_clean['gross'].fillna(value=df_clean['gross'].median(), inplace=True)
 df_clean.dropna(subset=['rating'], inplace=True)
 df_clean.reset_index(drop=True, inplace=True)
-print(f"Remain: {len(df_clean)} rows from {len(df)} rows")
+print(f"Remain: {len(df_clean)} rows\n")
 
 # Cannot put string type into model, try factorization or encoding before modeling
 # Factorized categoorical features
@@ -106,17 +109,18 @@ for col in cate_col:
     del factor
 del cate_col
 df_clean.reset_index(drop=True, inplace=True)"""
-df_clean.company.value_counts()
 
 # companies that have movies more than 10
+print('drop companies that have movies less than 10')
 big_companies = df_clean.company.value_counts()
 big_companies = big_companies[big_companies >= 10]
 # df_clean = df_clean[df_clean.groupby('company')['company'].transform('count').ge(10)]
 df_clean.drop(df_clean[-df_clean['company'].isin(big_companies.index)].index, inplace=True)
 df_clean.reset_index(drop=True, inplace=True)
 df_clean['company'] = df_clean['company'].cat.remove_unused_categories()
+print(f"Remain: {len(df_clean)} rows\n")
 
-
+print(f"Remain: {len(df_clean)} rows from {len(df)} rows\n")
 print("Final Missing Values ".center(30,'='))
 for c in df_clean.columns:
     print(f"{c.ljust(15)} {df_clean[c].isna().sum()}")
