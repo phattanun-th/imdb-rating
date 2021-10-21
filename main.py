@@ -9,12 +9,11 @@ import seaborn as sns
 from statistics import mean
 from sklearn.linear_model import LinearRegression
 from sklearn.tree import DecisionTreeRegressor
-from sklearn.model_selection import  train_test_split, cross_val_score, GridSearchCV
+from sklearn.model_selection import  train_test_split, cross_val_score, GridSearchCV, cross_val_predict
 from sklearn.metrics import mean_squared_error as mse, mean_absolute_error as mae, r2_score as r2
 from sklearn.linear_model import LinearRegression
 from yellowbrick.regressor import PredictionError
 from collections import Counter
-
 
 # os.chdir('M:/project/git-repo/imdb-rating/')
 df = pd.read_csv('./movies.csv')
@@ -43,7 +42,6 @@ df['year'] = df['year'].astype('category')
 df.select_dtypes(['float64']) # select specific types
 df.select_dtypes(['category'])
 df[['score','rating']].groupby('rating').describe()
-
 
 # ==========================================
 #            Data Preparation
@@ -154,8 +152,8 @@ df_clean['score'] = np.exp(df_clean['score'])
 # Train/test split
 X = df_clean.drop(['score'], axis=1)
 Y = df_clean['score']
-trainX, testX, trainY, testY = train_test_split(X, Y, test_size=0.7, random_state=123)
-#trainX, testX, trainY, testY = train_test_split(X, Y, train_size=0.7, random_state=123)
+#trainX, testX, trainY, testY = train_test_split(X, Y, test_size=0.7, random_state=123)
+trainX, testX, trainY, testY = train_test_split(X, Y, train_size=0.7, random_state=123)
 
 print('\nmodeling phrase\n')
 
@@ -188,7 +186,7 @@ predicted_DTwGSCV = grid_model.predict(testX)
 print('RMSE =', mse(testY, predicted_DTwGSCV, squared=False))
 print("R2 =", r2(testY,predicted_DTwGSCV), "\n")
 
-print('Linear Regression\n')
+print('Linear Regression')
 # Linear Reegression
 linear_model = LinearRegression()
 linear_model.fit(trainX, trainY)
@@ -196,6 +194,13 @@ predicted = linear_model.predict(testX)
 print('RMSE =', mse(testY, predicted, squared=False))
 print('MSE =', mse(testY, predicted))
 print('R2 =', r2(testY, predicted))
+
+print('\nLinear Regression with 10-fold Cross Validation on training set only')
+# Linear Reegression
+linear_model = LinearRegression()
+crossscore = cross_val_score(linear_model, trainX, trainY, cv=10, scoring="r2")
+print("R2 =", mean(crossscore))
+
 # Visualization
 # Instantiate the linear model and visualizer
 visualizer = PredictionError(linear_model)
