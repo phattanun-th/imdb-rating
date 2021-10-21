@@ -187,7 +187,7 @@ print('RMSE =', mse(testY, predicted_DTwGSCV, squared=False))
 print("R2 =", r2(testY,predicted_DTwGSCV), "\n")
 
 print('Linear Regression')
-# Linear Reegression
+# Linear Regression
 linear_model = LinearRegression()
 linear_model.fit(trainX, trainY)
 predicted = linear_model.predict(testX)
@@ -196,7 +196,7 @@ print('MSE =', mse(testY, predicted))
 print('R2 =', r2(testY, predicted))
 
 print('\nLinear Regression with 10-fold Cross Validation on training set only')
-# Linear Reegression
+# Linear Regression
 linear_model = LinearRegression()
 crossscore = cross_val_score(linear_model, trainX, trainY, cv=10, scoring="r2")
 print("R2 =", mean(crossscore))
