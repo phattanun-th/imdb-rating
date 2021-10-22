@@ -9,7 +9,7 @@ import seaborn as sns
 from statistics import mean
 from sklearn.linear_model import LinearRegression
 from sklearn.tree import DecisionTreeRegressor
-from sklearn.model_selection import  train_test_split, cross_val_score, GridSearchCV, cross_val_predict
+from sklearn.model_selection import  train_test_split, cross_val_score, GridSearchCV
 from sklearn.metrics import mean_squared_error as mse, mean_absolute_error as mae, r2_score as r2
 from sklearn.linear_model import LinearRegression
 from yellowbrick.regressor import PredictionError
