@@ -44,6 +44,23 @@ df.select_dtypes(['float64']) # select specific types
 df.select_dtypes(['category'])
 df[['score','rating']].groupby('rating').describe()
 
+# Categorical Variable
+# Barplot
+sns.countplot(y="rating", data=df, order=pd.value_counts(df['rating']).iloc[:].index)
+sns.countplot(y="genre", data=df, order=pd.value_counts(df['genre']).iloc[:].index)
+sns.countplot(y='company', data=df, order=pd.value_counts(df['company']).iloc[:10].index)
+sns.countplot(y='country', data=df, order=pd.value_counts(df['country']).iloc[:10].index)
+sns.countplot(y='director', data=df, order=pd.value_counts(df['director']).iloc[:10].index)
+sns.countplot(y='writer', data=df, order=pd.value_counts(df['writer']).iloc[:10].index)
+sns.countplot(y='star', data=df, order=pd.value_counts(df['star']).iloc[:10].index)
+
+# Numerical Variable
+# Histogram
+sns.displot(df, x="score")
+sns.displot(df, x="votes")
+sns.displot(df, x="budget")
+sns.displot(df, x="gross")
+sns.displot(df, x="runtime")
 
 # ==========================================
 #            Data Preparation
