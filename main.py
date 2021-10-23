@@ -15,7 +15,6 @@ from sklearn.linear_model import LinearRegression
 from yellowbrick.regressor import PredictionError
 from collections import Counter
 
-
 # os.chdir('M:/project/git-repo/imdb-rating/')
 df = pd.read_csv('./movies.csv')
 
@@ -171,8 +170,8 @@ df_clean['score'] = np.exp(df_clean['score'])
 # Train/test split
 X = df_clean.drop(['score'], axis=1)
 Y = df_clean['score']
-trainX, testX, trainY, testY = train_test_split(X, Y, test_size=0.7, random_state=123)
-#trainX, testX, trainY, testY = train_test_split(X, Y, train_size=0.7, random_state=123)
+#trainX, testX, trainY, testY = train_test_split(X, Y, test_size=0.7, random_state=123)
+trainX, testX, trainY, testY = train_test_split(X, Y, train_size=0.7, random_state=123)
 
 print('\nmodeling phrase\n')
 
@@ -205,14 +204,21 @@ predicted_DTwGSCV = grid_model.predict(testX)
 print('RMSE =', mse(testY, predicted_DTwGSCV, squared=False))
 print("R2 =", r2(testY,predicted_DTwGSCV), "\n")
 
-print('Linear Regression\n')
-# Linear Reegression
+print('Linear Regression')
+# Linear Regression
 linear_model = LinearRegression()
 linear_model.fit(trainX, trainY)
 predicted = linear_model.predict(testX)
 print('RMSE =', mse(testY, predicted, squared=False))
 print('MSE =', mse(testY, predicted))
 print('R2 =', r2(testY, predicted))
+
+print('\nLinear Regression with 10-fold Cross Validation on training set only')
+# Linear Regression
+linear_model = LinearRegression()
+crossscore = cross_val_score(linear_model, trainX, trainY, cv=10, scoring="r2")
+print("R2 =", mean(crossscore))
+
 # Visualization
 # Instantiate the linear model and visualizer
 visualizer = PredictionError(linear_model)
